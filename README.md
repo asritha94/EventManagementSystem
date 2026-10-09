@@ -1,110 +1,382 @@
-# EventEase – Role-Based Event Management System
+# 🎉 EventEase – Event Management System
 
-A full-stack Event Management System built with **Java 17, Spring Boot 3.4.3, Spring Data JPA, Hibernate, MySQL, HTML, CSS and JavaScript**. The existing EventEase UI is preserved and the application now implements strict role-based access control and account-level data isolation.
+**EventEase** is a full-stack web application developed to simplify event creation, event discovery, registration, and administration. Built using Java, Spring Boot, MySQL, HTML, CSS, and JavaScript, the system provides separate functionality for Admin, Organizers, and Users.
 
-## Roles
+The application supports multiple organizers and users, with role-based access control and ownership-based data isolation. Each organizer manages their own events, each user manages their own registrations, and the Admin oversees the entire platform.
 
-### ADMIN – exactly one
-- Username: `admin`
-- Password: `admin123`
-- System-wide access to users, organizers, events and registrations.
-- Can create/manage organizer accounts.
-- Can manage any event and registration.
-- Normal registration can never create an ADMIN account.
+## 📌 Project Overview
 
-### ORGANIZER – multiple
-Demo account:
-- `organizer1 / organizer123`
+* **Project Name:** EventEase – Event Management System
+* **Project Type:** Full-Stack Web Application
+* **Backend:** Java 17, Spring Boot 3.4.3
+* **Frontend:** HTML5, CSS3, JavaScript
+* **Database:** MySQL
+* **ORM:** Spring Data JPA, Hibernate
+* **Authentication:** HTTP Sessions
+* **Password Security:** BCrypt
+* **Build Tool:** Maven
 
-The demo environment starts with one Organizer account. Admin can create additional Organizer accounts at any time. Each organizer has a unique user ID and can create, edit, delete and manage registrations only for events whose `organizerId` equals the logged-in organizer's ID.
+## ✨ Features
 
-### USER – multiple
-Demo account:
-- `user1 / user123`
+### 👨‍💼 1. Admin Dashboard
 
-The demo environment starts with one User account. Users can also create additional USER accounts from the Login dialog. Public registration always creates `USER`; it cannot create ADMIN or ORGANIZER.
+The Admin has system-wide access to manage the platform.
 
-## Data isolation
+* View dashboard statistics.
+* View and manage user accounts.
+* Create and manage multiple organizer accounts.
+* Activate or deactivate eligible user and organizer accounts.
+* View and manage all events.
+* View registrations across the platform.
+* Assign events to organizers.
+* Maintain centralized control over event management.
 
-Ownership is based on stable IDs, not display names or browser-supplied ownership fields.
+### 🧑‍💻 2. Organizer Dashboard
 
-- `Event.organizerId` identifies the organizer who owns an event.
-- `Registration.userId` identifies the user who registered.
-- `Registration.organizerId` identifies the event owner.
-- User profile data is loaded from the authenticated session.
-- `/api/registrations/my` returns only the logged-in user's registrations.
-- Organizer registration views are restricted to their own events.
-- Admin can view all registrations.
-- Backend authorization returns HTTP 403 for unauthorized organizer/resource access.
+Multiple organizers can independently manage their events.
 
-The previous email-only registration lookup is retained only as a protected compatibility endpoint: a USER can query only their own email, while ADMIN can use it for administration.
+* Log in using individual organizer credentials.
+* Create new events.
+* Edit event information.
+* Delete events they own.
+* View and manage their own events.
+* View registrations for their events.
+* Track participant counts.
+* Manage event details, including title, description, category, date, time, venue, capacity, and registration fee.
 
-## Main APIs
+Each event is associated with its organizer's unique ID. Organizers cannot modify or delete events owned by other organizers.
+
+### 👤 3. User Dashboard
+
+Users can discover events and manage their registrations.
+
+* Register for a new account.
+* Log in and log out.
+* Browse available events.
+* View event details.
+* Register for events that are open and have available capacity.
+* View personal registration history.
+* Cancel their own registrations.
+* Update profile information.
+
+Every user has an independent account, and registration information is associated with the logged-in user.
+
+### 📅 4. Event Management
+
+* Create, read, update, and delete events.
+* Maintain event categories and descriptions.
+* Store event dates, times, and venues.
+* Set registration fees and participant capacity.
+* Track event status.
+* Associate each event with its organizer.
+* Track confirmed registrations.
+
+### 📝 5. Registration Management
+
+* Register users for events.
+* Prevent duplicate registrations for the same user and event.
+* Prevent registration when an event is closed or full.
+* Store registration details and timestamps.
+* Allow users to access their own registrations.
+* Allow organizers to view registrations for their events.
+* Allow Admin to view registrations across the platform.
+
+### 🔐 6. Role-Based Access and Data Isolation
+
+EventEase supports three roles:
+
+| Role      | Responsibilities                                                        |
+| --------- | ----------------------------------------------------------------------- |
+| ADMIN     | Manage users, organizers, events, and registrations across the platform |
+| ORGANIZER | Create and manage owned events and view their registrations             |
+| USER      | Browse events and manage personal registrations                         |
+
+The backend verifies authentication, roles, and resource ownership. Frontend restrictions improve usability, while server-side checks protect restricted operations.
+
+## ⚙️ How the Project Works
+
+### Application Workflow
+
+1. **Start the application:** Spring Boot starts the server and connects to the MySQL database.
+2. **Initialize data:** The application creates the default demo accounts if they do not already exist and updates supported database schema changes.
+3. **Authenticate users:** Users log in with their credentials. The backend verifies the password and establishes an HTTP session.
+4. **Identify the role:** The application identifies whether the logged-in account is an Admin, Organizer, or User.
+5. **Display the appropriate dashboard:** The frontend provides role-specific navigation and available actions.
+6. **Manage events:** Admin or an Organizer creates events. Events created by an Organizer are associated with that organizer's account.
+7. **Register for events:** Authenticated Users can register for open events when capacity is available.
+8. **Store registration information:** Registration records are saved in MySQL with references to the event, user, and organizer.
+9. **Enforce permissions:** The backend checks ownership and role permissions for protected operations.
+10. **Maintain separate accounts:** Users see their own registrations, organizers see registrations for their events, and Admin can view platform-wide records.
+11. **Log out:** The current HTTP session is invalidated.
+
+### Example: Admin + Two Organizers + Two Users
+
+Suppose the application has one Admin, two Organizers, and two Users.
+
+1. Admin logs in and creates Organizer 2.
+2. Organizer 1 creates a Java Workshop.
+3. Organizer 2 creates a React Workshop.
+4. Organizer 1 manages the Java Workshop, while Organizer 2 manages the React Workshop.
+5. If Organizer 2 attempts to modify Organizer 1's event, the backend denies the request.
+6. User 1 registers for the Java Workshop.
+7. User 2 registers for the React Workshop.
+8. User 1 sees only their own registrations, and User 2 sees only theirs.
+9. Admin can access the events and registrations across the platform.
+
+This workflow demonstrates how EventEase supports multiple independent organizers and users without mixing their data.
+
+## 🛠️ Technologies Used
+
+| Technology      | Purpose                                 |
+| --------------- | --------------------------------------- |
+| Java 17         | Core application programming            |
+| Spring Boot     | Backend application framework           |
+| Spring Web      | REST API development                    |
+| Spring Data JPA | Database operations                     |
+| Hibernate       | Object-relational mapping               |
+| MySQL           | Persistent data storage                 |
+| HTML5           | Page structure                          |
+| CSS3            | Styling and responsive layout           |
+| JavaScript      | Frontend interactions and API calls     |
+| BCrypt          | Password hashing                        |
+| HTTP Sessions   | Authentication and session management   |
+| Maven           | Dependency management and project build |
+
+## 🗂️ Project Structure
+
+```text
+EventManagementSystem/
+├── pom.xml
+├── README.md
+└── src/
+    └── main/
+        ├── java/
+        │   └── com/eventmanagement/
+        │       ├── EventManagementApplication.java
+        │       ├── config/
+        │       │   └── DataInitializer.java
+        │       ├── controller/
+        │       │   ├── AuthController.java
+        │       │   ├── EventController.java
+        │       │   ├── RegistrationController.java
+        │       │   ├── AdminController.java
+        │       │   └── ApiExceptionHandler.java
+        │       ├── entity/
+        │       │   ├── User.java
+        │       │   ├── Event.java
+        │       │   └── Registration.java
+        │       └── repository/
+        │           ├── UserRepository.java
+        │           ├── EventRepository.java
+        │           └── RegistrationRepository.java
+        └── resources/
+            ├── application.properties
+            └── static/
+                ├── index.html
+                ├── css/
+                │   └── style.css
+                └── js/
+                    └── app.js
+```
+
+## 🚀 Installation and Setup
+
+### Prerequisites
+
+* Java Development Kit (JDK) 17 or later.
+* MySQL Server.
+* Maven.
+* Visual Studio Code, IntelliJ IDEA, or Eclipse.
+* A modern web browser.
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/asritha94/EventManagementSystem.git
+cd EventManagementSystem
+```
+
+Open the directory containing `pom.xml` in your IDE.
+
+### Step 2: Create the Database
+
+Start MySQL and execute:
+
+```sql
+CREATE DATABASE event_management_db;
+```
+
+### Step 3: Configure Database Credentials
+
+Open `src/main/resources/application.properties` and configure your local MySQL username and password.
+
+Example:
+
+```properties
+spring.application.name=event-management-system
+spring.datasource.url=jdbc:mysql://localhost:3306/event_management_db?createDatabaseIfNotExist=true
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD}
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
+server.port=8080
+```
+
+Set the `DB_PASSWORD` environment variable to your MySQL password before starting the application. Do not commit actual credentials to GitHub.
+
+### Step 4: Build the Project
+
+Open a terminal in the directory containing `pom.xml` and execute:
+
+```bash
+mvn clean install
+```
+
+### Step 5: Run the Application
+
+```bash
+mvn spring-boot:run
+```
+
+Alternatively, run `EventManagementApplication.java` from your IDE.
+
+### Step 6: Open the Application
+
+Navigate to:
+
+**http://localhost:8080**
+
+Register a new User account or log in using one of the configured demo accounts.
+
+## 🔑 Demo Credentials
+
+The application initializes one default account for each role.
+
+| Role      | Username     | Password       |
+| --------- | ------------ | -------------- |
+| Admin     | `admin`      | `admin123`     |
+| Organizer | `organizer1` | `organizer123` |
+| User      | `user1`      | `user123`      |
+
+Additional Organizer accounts can be created by Admin, and additional User accounts can be registered through the public registration form.
+
+These credentials are for local demonstration only. Change them before any public deployment.
+
+## 🔌 Main API Endpoints
 
 ### Authentication
-- `POST /api/auth/login`
-- `POST /api/auth/register` – USER only
-- `GET /api/auth/me`
-- `PUT /api/auth/profile`
-- `POST /api/auth/logout`
+
+| Method | Endpoint             | Description             |
+| ------ | -------------------- | ----------------------- |
+| POST   | `/api/auth/login`    | Log in                  |
+| POST   | `/api/auth/register` | Register a User         |
+| GET    | `/api/auth/me`       | Get the current account |
+| PUT    | `/api/auth/profile`  | Update profile          |
+| POST   | `/api/auth/logout`   | Log out                 |
 
 ### Events
-- `GET /api/events`
-- `GET /api/events/{id}`
-- `POST /api/events` – ADMIN/ORGANIZER
-- `PUT /api/events/{id}` – ADMIN or owning ORGANIZER
-- `DELETE /api/events/{id}` – ADMIN or owning ORGANIZER
-- `GET /api/events/manage` – ADMIN all / ORGANIZER own
-- `GET /api/events/{id}/registration-count`
+
+| Method | Endpoint                              | Description                      |
+| ------ | ------------------------------------- | -------------------------------- |
+| GET    | `/api/events`                         | Browse events                    |
+| GET    | `/api/events/{id}`                    | View event details               |
+| POST   | `/api/events`                         | Create an event                  |
+| PUT    | `/api/events/{id}`                    | Update an authorized event       |
+| DELETE | `/api/events/{id}`                    | Delete an authorized event       |
+| GET    | `/api/events/manage`                  | Retrieve manageable events       |
+| GET    | `/api/events/{id}/registration-count` | Get confirmed registration count |
 
 ### Registrations
-- `POST /api/registrations` – authenticated USER
-- `GET /api/registrations/my` – current USER only
-- `GET /api/registrations` – ADMIN only
-- `GET /api/registrations/event/{eventId}` – ADMIN or owning ORGANIZER
-- `DELETE /api/registrations/{id}` – ADMIN, owning USER, or event-owning ORGANIZER
 
-### Admin
-- `GET /api/admin/users`
-- `GET /api/admin/organizers`
-- `POST /api/admin/organizers`
-- `PUT /api/admin/users/{id}/status`
-- `PUT /api/admin/organizers/{id}/status`
-- `DELETE /api/admin/users/{id}`
-- `DELETE /api/admin/organizers/{id}`
-- `GET /api/admin/stats`
+| Method | Endpoint                             | Description                                 |
+| ------ | ------------------------------------ | ------------------------------------------- |
+| POST   | `/api/registrations`                 | Register for an event                       |
+| GET    | `/api/registrations/my`              | View personal registrations                 |
+| GET    | `/api/registrations`                 | View all registrations as Admin             |
+| GET    | `/api/registrations/event/{eventId}` | View registrations for an authorized event  |
+| DELETE | `/api/registrations/{id}`            | Cancel or remove an authorized registration |
 
-## Run
+### Administration
 
-1. Install JDK 17+, Maven and MySQL 8+.
-2. Set the MySQL password in `src/main/resources/application.properties`.
-3. Import the project as an existing Maven project.
-4. Run `EventManagementApplication.java`.
-5. Open `http://localhost:8080`.
+| Method | Endpoint                            | Description               |
+| ------ | ----------------------------------- | ------------------------- |
+| GET    | `/api/admin/users`                  | View users                |
+| GET    | `/api/admin/organizers`             | View organizers           |
+| POST   | `/api/admin/organizers`             | Create an Organizer       |
+| PUT    | `/api/admin/users/{id}/status`      | Update user status        |
+| PUT    | `/api/admin/organizers/{id}/status` | Update organizer status   |
+| DELETE | `/api/admin/users/{id}`             | Delete a user             |
+| DELETE | `/api/admin/organizers/{id}`        | Delete an organizer       |
+| GET    | `/api/admin/stats`                  | View dashboard statistics |
 
-The application uses `spring.jpa.hibernate.ddl-auto=update`. On startup the initializer creates the demo accounts and migrates legacy event/registration ownership when possible.
+Protected endpoints require the appropriate authenticated session and role.
 
-## Required role-isolation test
+## 🗄️ Database Design
 
-The project starts with exactly three demo accounts: one ADMIN, one ORGANIZER and one USER.
+The application uses three main entities.
 
-1. Login as `organizer1 / organizer123`.
-2. Create `Java Workshop`.
-3. Logout and login as `admin / admin123`.
-4. From **Manage Organizers**, create a second organizer account (for example `organizer2`).
-5. Logout and login using the newly created Organizer 2 account.
-6. Create `React Workshop`.
-7. Organizer 2 sees only React Workshop in **My Events**.
-8. Attempt to update/delete Java Workshop as Organizer 2: backend must return **403 Forbidden**.
-9. Login as Organizer 1: Java Workshop can be updated/deleted; React Workshop cannot.
-10. Login as Admin: both events are visible and manageable.
-11. Login as `user1 / user123` and register for Java Workshop.
-12. Create another USER account from the public registration form (for example `user2`).
-13. Logout and login as the newly created User 2: User 1's registration is not shown.
-14. User 2 registers for React Workshop.
-15. Login again as User 1: only User 1's registration is shown.
-16. Verify direct API calls cannot bypass the same restrictions.
+**User**
 
-## Important
+* Unique user ID, username, email, and hashed password.
+* Full name, role, and account status.
 
-This project uses HTTP sessions for authentication and BCrypt for password storage. The frontend hides role-inappropriate controls for usability, but authorization is independently enforced by the backend.
+**Event**
+
+* Event title, description, category, date, time, venue, capacity, registration fee, and status.
+* Organizer ID and organizer details.
+
+**Registration**
+
+* Registration ID and event reference.
+* User ID and organizer ID.
+* Registrant information and registration timestamp.
+* Registration status.
+
+A unique database constraint on the event and user combination helps prevent duplicate registrations.
+
+## 🧪 Testing the Application
+
+To verify the main workflows:
+
+1. Log in as Admin.
+2. Create a second Organizer account.
+3. Log in as Organizer 1 and create an event.
+4. Log in as Organizer 2 and create another event.
+5. Verify each organizer manages only their own events.
+6. Test unauthorized attempts to edit or delete another organizer's event.
+7. Register User 1 for an event.
+8. Register User 2 for another event.
+9. Verify each user sees only their own registrations.
+10. Log in as Admin and verify platform-wide access.
+
+## 🔐 Security Considerations
+
+* Passwords are stored using BCrypt hashing.
+* Authentication uses HTTP sessions.
+* Role and ownership checks are performed by backend controllers.
+* Public registration creates only User accounts.
+* Unauthorized organizer operations are rejected.
+* Database credentials should be stored outside source control.
+
+For production deployment, configure HTTPS, secure session cookies, CSRF protection appropriate to the session-based design, and stronger account provisioning. Demo credentials must not be used in a public production environment.
+
+## 🔮 Future Enhancements
+
+* Email notifications and event reminders.
+* Online payment integration.
+* Event search and advanced filtering.
+* Digital tickets and QR-code check-in.
+* Attendance tracking and analytics.
+* Automated testing and cloud deployment.
+
+## 🎯 Project Objective
+
+The objective of EventEase is to provide a centralized event management platform with independent Organizer and User accounts, secure role-based access, event registration, and efficient administrative operations. The project demonstrates full-stack development, REST API design, relational database integration, session management, and authorization.
+
+## 👩‍💻 Author
+
+I. Asritha 
+
+GitHub Repository: https://github.com/asritha94/EventManagementSystem
+
